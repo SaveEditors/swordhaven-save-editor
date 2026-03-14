@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swordhaven Save Editor</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c55c28'/%3E%3Cpath d='M18 20h28v6H18zm0 12h28v6H18zm0 12h18v6H18z' fill='white'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <nav class="app-nav" aria-label="Project Links">
+        <a href="https://github.com/SaveEditors/SaveEditors.github.io/tree/main/swordhaven-save-editor" target="_blank" rel="noopener noreferrer">Repo</a>
+        <a href="https://saveeditors.github.io/swordhaven-save-editor/" target="_blank" rel="noopener noreferrer">Publish</a>
+        <a href="https://github.com/SaveEditors/SaveEditors.github.io/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+        <a href="https://saveeditors.github.io/" target="_blank" rel="noopener noreferrer">All Editors</a>
+        <a href="https://ko-fi.com/saveeditors" target="_blank" rel="noopener noreferrer">Donate</a>
+      </nav>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Swordhaven</div>
+          <h1>Swordhaven Save Editor</h1>
+          <p>Edit Swordhaven save data.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="exportBtn" class="primary" disabled>Export Edited Save</button>
+          <button id="revertAllBtn" class="ghost" disabled>Revert All</button>
+          <button id="resetBtn" class="ghost">Reset</button>
+        </div>
+      </header>
+
+      <section class="surface load-surface">
+        <div class="surface-head">
+          <h2>Load Sources</h2>
+          <div id="status" class="status status-main">
+            <span class="status-code">IDLE</span>
+            <span class="status-text">Awaiting save folder selection.</span>
+          </div>
+        </div>
+        <div id="savePathHint" class="save-path-hint"></div>
+        <section class="load-card load-card-single">
+          <div class="load-single-copy">
+            <span class="load-title">Choose Save Folder</span>
+            <span class="load-subtitle">Select a folder. Auto-detect scans for `Progress` first, then `Save_*.as`.</span>
+          </div>
+          <div class="load-single-actions">
+            <button id="chooseFolderBtn" type="button" class="primary">Choose Save Folder</button>
+            <div id="selectedFolderLabel" class="selected-folder-label">No folder selected.</div>
+          </div>
+          <input id="autoDetectInput" type="file" webkitdirectory directory hidden />
+        </section>
+      </section>
+
+      <section class="surface deployment-surface">
+        <div class="deployment-copy">
+          <h3>Deployment Note</h3>
+          <p>Release target: GitHub Pages and the Electron desktop shell.</p>
+          <p>Serve this folder as static files. Keep relative paths. Browser export downloads files; browser sandbox does not allow in-place overwrite.</p>
+          <div class="deployment-paths">
+            <div class="deployment-card">
+              <strong>Steam Default Save Path</strong>
+              <code>%USERPROFILE%\AppData\LocalLow\AtomTeam\Swordhaven\</code>
+              <code>Save_*.as</code>
+              <code>Progress\*</code>
+            </div>
+            <div class="deployment-card">
+              <strong>Game Pass / Microsoft Store Save Root</strong>
+              <code>%LOCALAPPDATA%\Packages\&lt;Swordhaven package family&gt;\SystemAppData\wgs\</code>
+            </div>
+          </div>
+          <p>Steam uses Unity LocalLow layout. Microsoft Store / Game Pass uses WGS with variable package-family folder names.</p>
+          <p>Electron wrapper adds native file dialogs, local backup flow, and portable Windows packaging.</p>
+        </div>
+      </section>
+
+      <section class="surface workspace-surface compact-status-surface">
+        <div class="summary-strip">
+          <div id="summaryStrip" class="summary-strip-main">No save loaded.</div>
+          <div id="warningCount" class="status inline-status">No warnings.</div>
+        </div>
+        <div id="modifiedList" class="pill-list"></div>
+      </section>
+
+      <section class="surface toolbar-surface">
+        <div class="toolbar">
+          <div class="segmented" id="viewTabs">
+            <button data-view="core" class="active">Core</button>
+            <button data-view="records">Records</button>
+            <button data-view="maps">Maps</button>
+          </div>
+          <details class="quick-tools">
+            <summary>Quick Tools</summary>
+            <div class="quick-actions">
+              <button id="qaRevealAllBtn">Reveal All FOW</button>
+              <button id="qaFogAllBtn">Fog All FOW</button>
+              <button id="qaClearDecalsBtn" class="ghost">Clear Decals On Export</button>
+              <button id="qaSyncStatsBtn" class="ghost">Sync Save Stats To Player</button>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="surface navigator-surface">
+        <div class="surface-head compact">
+          <h2>Quick Access</h2>
+        </div>
+        <div class="navigator-strip">
+          <label class="field">
+            <span>Find file or record</span>
+            <input id="recordFilter" type="text" placeholder="save.dat, entities, quest..." />
+          </label>
+          <div id="quickAccessBar" class="quick-access-bar"></div>
+        </div>
+        <details class="advanced-panel compact-panel">
+          <summary>Loaded files</summary>
+          <div id="entryList" class="simple-list"></div>
+        </details>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="content">
+          <div id="coreView" class="view active">
+            <div class="content-grid two-up">
+              <section class="surface panel-card">
+                <div class="surface-head compact">
+                  <h2>Save Profile</h2>
+                </div>
+                <div id="saveFields" class="field-grid"></div>
+              </section>
+
+              <section class="surface panel-card">
+                <div class="surface-head compact">
+                  <h2>Player Profile</h2>
+                </div>
+                <div id="playerFields" class="field-grid"></div>
+              </section>
+            </div>
+
+            <section class="surface panel-card">
+              <div class="surface-head compact">
+                <h2>Stats</h2>
+                <label class="toggle">
+                  <input id="statsSyncToggle" type="checkbox" checked />
+                  <span>Sync save.dat and player.dat</span>
+                </label>
+              </div>
+              <div class="toolbar-strip">
+                <label class="field">
+                  <span>Search</span>
+                  <input id="statsFilter" type="text" placeholder="constitution, damage, skill..." />
+                </label>
+                <label class="toggle inline-toggle">
+                  <input id="statsMismatchToggle" type="checkbox" />
+                  <span>Mismatches only</span>
+                </label>
+                <div class="action-cluster">
+                  <button id="statsCopySaveBtn">Save To Player</button>
+                  <button id="statsCopyPlayerBtn" class="ghost">Player To Save</button>
+                  <button id="statsReloadBtn" class="ghost">Reload</button>
+                </div>
+              </div>
+              <div id="statsMeta" class="subtle-text">Load a save to inspect stats.</div>
+              <div id="statsTable" class="stats-table"></div>
+            </section>
+
+            <div class="content-grid two-up">
+              <section class="surface panel-card">
+                <div class="surface-head compact">
+                  <h2>Inventory</h2>
+                  <div id="inventoryStatus" class="subtle-text"></div>
+                </div>
+                <div class="toolbar-strip inventory-toolbar">
+                  <label class="field">
+                    <span>Search inventory</span>
+                    <input id="inventoryFilter" type="text" placeholder="proto, weapon, potion..." />
+                  </label>
+                  <div class="action-cluster">
+                    <button id="inventoryAddBtn">Add Item</button>
+                  </div>
+                </div>
+                <div id="inventoryQuickActions" class="inventory-quick-actions"></div>
+                <div id="inventoryTree" class="inventory-table"></div>
+              </section>
+
+              <section class="surface panel-card">
+                <div class="surface-head compact">
+                  <h2>Quest State</h2>
+                  <div id="questStatus" class="subtle-text"></div>
+                </div>
+                <div id="questTree" class="tree-root"></div>
+              </section>
+            </div>
+          </div>
+
+          <div id="recordsView" class="view">
+            <section class="surface panel-card">
+              <div class="surface-head">
+                <div>
+                  <h2 id="recordTitle">Structured Record Editor</h2>
+                  <div id="recordSubtitle" class="subtle-text">Pick a file from the browser.</div>
+                </div>
+                <div class="action-cluster">
+                  <button id="recordRevertBtn" class="ghost" disabled>Revert File</button>
+                </div>
+              </div>
+              <div class="toolbar-strip">
+                <label class="field">
+                  <span>Search current file</span>
+                  <input id="recordSearch" type="text" placeholder="name, stats, coast, relationship..." />
+                </label>
+              </div>
+              <div id="recordInspector" class="tree-root"></div>
+              <details class="advanced-panel">
+                <summary>Advanced Raw JSON</summary>
+                <div class="advanced-actions">
+                  <button id="rawApplyBtn">Apply</button>
+                  <button id="rawFormatBtn" class="ghost">Format</button>
+                  <button id="rawReloadBtn" class="ghost">Reload</button>
+                  <div id="rawStatus" class="subtle-text"></div>
+                </div>
+                <textarea id="rawJsonArea" spellcheck="false"></textarea>
+              </details>
+            </section>
+          </div>
+
+          <div id="mapsView" class="view">
+            <section class="surface panel-card">
+              <div class="surface-head">
+                <div>
+                  <h2>Fog Of War</h2>
+                  <div id="fowMeta" class="subtle-text">No FOW loaded.</div>
+                </div>
+                <div id="fowStats" class="subtle-text"></div>
+              </div>
+              <div class="toolbar-strip">
+                <label class="field">
+                  <span>FOW file</span>
+                  <select id="fowSelect"></select>
+                </label>
+                <div class="action-cluster">
+                  <button id="revealAllBtn">Reveal</button>
+                  <button id="fogAllBtn">Fog</button>
+                  <button id="invertBtn" class="ghost">Invert</button>
+                  <button id="fowResetViewBtn" class="ghost">Reset View</button>
+                </div>
+              </div>
+              <div class="fow-grid">
+                <div class="fow-canvas-wrap">
+                  <canvas id="fowCanvas"></canvas>
+                </div>
+                <div class="surface inset-card">
+                  <div id="fowPreviewMeta" class="subtle-text">Preview not available.</div>
+                  <div class="legend">
+                    <span><i class="swatch visible"></i>Revealed</span>
+                    <span><i class="swatch hidden"></i>Fogged</span>
+                  </div>
+                  <div class="field-grid compact-grid">
+                    <label class="field">
+                      <span>X</span>
+                      <input id="regionX" type="number" min="0" value="0" />
+                    </label>
+                    <label class="field">
+                      <span>Y</span>
+                      <input id="regionY" type="number" min="0" value="0" />
+                    </label>
+                    <label class="field">
+                      <span>Width</span>
+                      <input id="regionW" type="number" min="1" value="64" />
+                    </label>
+                    <label class="field">
+                      <span>Height</span>
+                      <input id="regionH" type="number" min="1" value="64" />
+                    </label>
+                    <label class="field">
+                      <span>Fill</span>
+                      <select id="regionValue">
+                        <option value="0">Reveal</option>
+                        <option value="255">Fog</option>
+                      </select>
+                    </label>
+                  </div>
+                  <button id="applyRegionBtn">Apply Region Fill</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="surface panel-card">
+              <div class="surface-head">
+                <div>
+                  <h2>Decals</h2>
+                  <div id="decalsMeta" class="subtle-text">No decals loaded.</div>
+                </div>
+                <label class="toggle">
+                  <input id="clearDecalsToggle" type="checkbox" />
+                  <span>Clear decals on export</span>
+                </label>
+              </div>
+              <div id="decalsList" class="simple-list"></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <a class="kofi-widget" href="https://ko-fi.com/saveeditors" target="_blank" rel="noopener noreferrer" aria-label="Support SaveEditors on Ko-fi">
+      Buy Me A Coffee
+    </a>
+
+    <script src="app.js"></script>
+  </body>
+</html>

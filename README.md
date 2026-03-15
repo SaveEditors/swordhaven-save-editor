@@ -1,8 +1,8 @@
-# Swordhaven - Save Editor
+# Swordhaven - Iron Conspiracy - Save Editor
 
-![Swordhaven - Save Editor Header](assets/readme-header.svg)
+![Swordhaven - Iron Conspiracy - Save Editor Header](assets/readme-header.svg)
 
-A local-first Swordhaven save editor with safe export workflows and clear profile/record/map editing surfaces.
+A local-first Swordhaven - Iron Conspiracy save editor with safe export workflows and clear profile/record/map editing surfaces.
 
 Use editor without downloading [HERE](https://saveeditors.github.io/swordhaven-save-editor/)
 
@@ -10,7 +10,7 @@ All editors homepage: [`https://saveeditors.github.io/`](https://saveeditors.git
 
 Have a request for a new save editor? [Request it here!](https://whispermeter.com/message-box/15b6ac70-9113-4e9c-b629-423f335c7e07)
 
-![Swordhaven Save Editor Screenshot](assets/readme-screenshot-app.png)
+![Swordhaven - Iron Conspiracy Save Editor Screenshot](assets/readme-screenshot-app.png)
 
 ## What You Can Edit Right Now
 
@@ -44,7 +44,7 @@ Then open `http://127.0.0.1:8080`.
 - Close the game and cloud-sync processes before edits and relaunch after save.
 - The editor is built for local processing and does not upload saves to a remote service.
 
-What this does not do yet: it does not auto-map every unknown internal Swordhaven value.
+What this does not do yet: it does not auto-map every unknown internal Swordhaven - Iron Conspiracy value.
 
 
 

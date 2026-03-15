@@ -1,4 +1,4 @@
-# Swordhaven Save Editor - Release Instructions
+# Swordhaven - Iron Conspiracy Save Editor - Release Instructions
 
 Use editor without downloading HERE: [`https://saveeditors.github.io/swordhaven-save-editor/`](https://saveeditors.github.io/swordhaven-save-editor/)
 

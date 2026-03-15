@@ -134,7 +134,7 @@ const ATTRIBUTE_KEYS = [
 ];
 
 const SKILL_MILESTONES = [50, 75, 100, 150, 199, 200];
-const DEFAULT_SAVE_PATH = String.raw`Windows save path: %USERPROFILE%\AppData\LocalLow\AtomTeam\Swordhaven`;
+const DEFAULT_SAVE_PATH = String.raw`Windows save path (Swordhaven - Iron Conspiracy): %USERPROFILE%\AppData\LocalLow\AtomTeam\Swordhaven`;
 
 const FIELD_GUIDE = {
   player_name: "Display name shown in the save profile.",
@@ -2558,7 +2558,7 @@ async function loadAutoDetect(fileList) {
     return;
   }
 
-  setStatus("No Swordhaven save payload detected.", "error");
+  setStatus("No Swordhaven - Iron Conspiracy save payload detected.", "error");
 }
 
 function buildArchiveBuffer(entries) {

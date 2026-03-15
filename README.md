@@ -1,9 +1,6 @@
 # Swordhaven - Save Editor
 
 ![Swordhaven - Save Editor Header](assets/readme-header.svg)
-`r`n<p align="center">
-  <img src="./GithubHeader.png" alt="Header" />
-</p>
 
 A local-first Swordhaven save editor with safe export workflows and clear profile/record/map editing surfaces.
 
